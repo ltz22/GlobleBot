@@ -1,10 +1,12 @@
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
+import java.util.List;
 import java.util.Scanner;
 
 public class GlobleBot {
@@ -13,7 +15,7 @@ public class GlobleBot {
 
     public GlobleBot() {
         // Set the path to your chromedriver
-        System.setProperty("webdriver.chrome.driver", "C:\\Users\\zhang\\Downloads\\chromedriver_win32");
+        //System.setProperty("webdriver.chrome.driver", "C:\\Users\\zhang\\Downloads\\chromedriver_win32\\chromedriver.exe");
 
         driver = new ChromeDriver();
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -25,21 +27,40 @@ public class GlobleBot {
 
         try {
             bot.start();
+            System.out.print("\nEnter your initial guess country: ");
+            String initialGuess = scanner.nextLine().trim();
 
-            System.out.print("Enter your first guess: ");
-            String firstGuess = scanner.nextLine();
+            System.out.println("\nYou have 5 seconds to switch to the browser window...");
+            Thread.sleep(5000); // Give user time to switch windows
 
-            bot.makeGuess(firstGuess);
+            bot.makeGuess(initialGuess);
+
             GuessResult result = bot.getLastGuessResult();
-
             if (result != null) {
-                System.out.println("Result: " + result);
+                System.out.println("\n=== Initial Guess Result ===");
+                System.out.println(result);
+                System.out.println("Distance: " + result.getDistanceAsInt() + " km");
             }
 
-            // Keep the browser open
+            // TODO: Algorithm goes here
+            // Example structure:
+            // while (!solved) {
+            //     String nextGuess = yourAlgorithm.getNextGuess(result);
+            //     bot.makeGuess(nextGuess);
+            //     result = bot.getLastGuessResult();
+            //     if (result.getDistanceAsInt() == 0) {
+            //         System.out.println("Found it! The answer is: " + result.country);
+            //         break;
+            //     }
+            // }
+
+            //System.out.println("\n=== Ready for algorithm implementation ===");
             System.out.println("Press Enter to close...");
             scanner.nextLine();
 
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();
         } finally {
             bot.close();
             scanner.close();
@@ -47,7 +68,7 @@ public class GlobleBot {
     }
 
     public void start() {
-        driver.get("https://globle-game.com/");
+        driver.get("https://globle-game.com/game");
         // Wait for page to load
         try {
             Thread.sleep(2000);
@@ -59,31 +80,18 @@ public class GlobleBot {
     public void makeGuess(String countryName) {
         try {
             // Find the input box (you'll need to inspect the actual selector)
-            WebElement inputBox = wait.until(
-                    ExpectedConditions.presenceOfElementLocated(
-                            By.cssSelector("input[type='text']") // Adjust this selector
-                    )
-            );
+            WebElement inputBox = wait.until(ExpectedConditions.
+                    presenceOfElementLocated(By.cssSelector("input[type='text']")));
 
             // Clear any existing text
             inputBox.clear();
 
             // Type the country name
             inputBox.sendKeys(countryName);
-
-            // Wait for autocomplete dropdown to appear
-            Thread.sleep(500);
-
-            // Select the first suggestion (or press Enter)
-            WebElement firstSuggestion = wait.until(
-                    ExpectedConditions.elementToBeClickable(
-                            By.cssSelector(".suggestion-item:first-child") // Adjust selector
-                    )
-            );
-            firstSuggestion.click();
+            inputBox.sendKeys(Keys.RETURN);
 
             // Wait for the guess to be processed
-            Thread.sleep(1000);
+            Thread.sleep(1500);
 
         } catch (Exception e) {
             System.out.println("Error making guess: " + e.getMessage());
@@ -92,26 +100,75 @@ public class GlobleBot {
 
     public GuessResult getLastGuessResult() {
         try {
+            Thread.sleep(2000);
+
             // Find the most recent guess element (adjust selectors based on inspection)
-            WebElement lastGuess = driver.findElement(
-                    By.cssSelector(".guess-list .guess-item:first-child")
+            WebElement countriesList = driver.findElement(
+                    By.cssSelector("ul.grid.grid-cols-3")
             );
 
-            // Extract country name
-            String country = lastGuess.findElement(By.cssSelector(".country-name")).getText();
+            // Get all list items (guesses)
+            List<WebElement> guesses = countriesList.findElements(By.tagName("li"));
 
-            // Extract distance or proximity percentage
-            // Globle might show distance in km or a percentage
-            String distanceText = lastGuess.findElement(By.cssSelector(".distance")).getText();
+            if (guesses.isEmpty()) {
+                System.out.println("No guesses found yet");
+                return null;
+            }
 
-            // Extract color (background color of the element)
-            String backgroundColor = lastGuess.getCssValue("background-color");
+            // Get the FIRST item (most recent guess)
+            WebElement lastGuess = guesses.get(0);
 
-            return new GuessResult(country, distanceText, backgroundColor);
+            // Extract country name from the span
+            String countryName = lastGuess.findElement(
+                    By.cssSelector("span.text-md")
+            ).getText();
+
+            // Extract distance from the span with data-testid="closest-border"
+            String distance = "";
+            try {
+                WebElement distanceElement = driver.findElement(
+                        By.cssSelector("span[data-testid='closest-border']")
+                );
+                distance = distanceElement.getText();
+            } catch (Exception e2) {
+                    System.out.println("Could not find distance element");
+            }
+
+            return new GuessResult(countryName, distance);
 
         } catch (Exception e) {
             System.out.println("Error extracting result: " + e.getMessage());
             return null;
+        }
+    }
+
+    public List<GuessResult> getAllGuesses(){
+        try {
+            WebElement countriesList = driver.findElement(
+                    By.cssSelector("ul.grid.grid-cols-3")
+            );
+
+            List<WebElement> guesses = countriesList.findElements(By.tagName("li"));
+
+            return guesses.stream().map(guess -> {
+                try {
+                    String countryName = guess.findElement(
+                            By.cssSelector("span.text-md")
+                    ).getText();
+
+                    String distance = guess.findElement(
+                            By.cssSelector("span[data-testid='closest-border']")
+                    ).getText();
+
+                    return new GuessResult(countryName, distance);
+                } catch (Exception e) {
+                    return null;
+                }
+            }).filter(r -> r != null).toList();
+
+        } catch (Exception e) {
+            System.out.println("Error getting all guesses: " + e.getMessage());
+            return List.of();
         }
     }
 
