@@ -1,17 +1,22 @@
 public class GuessResult {
     private String country;
     private String distance;
-    private String color;
 
-    public GuessResult(String country, String distance, String color) {
+    public GuessResult(String country, String distance) {
         this.country = country;
         this.distance = distance;
-        this.color = color;
+    }
+
+    public int getDistanceAsInt() {
+        if (distance == null || distance.isEmpty()) {
+            return -1; // Return -1 if distance not found (might mean you won!)
+        }
+        return Integer.parseInt(distance.replace(",", "").replace(":", "").trim());
     }
 
     @Override
     public String toString() {
-        return String.format("Country: %s, Distance: %s, Color: %s",
-                country, distance, color);
+        return String.format("Country: %s, Distance: %s",
+                country, distance);
     }
 }
