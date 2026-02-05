@@ -1,5 +1,5 @@
 public class GuessResult {
-    private String country;
+    String country;
     private String distance;
 
     public GuessResult(String country, String distance) {
