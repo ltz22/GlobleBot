@@ -20,6 +20,19 @@
             <artifactId>selenium-java</artifactId>
             <version>4.16.1</version>
         </dependency>
+        <!-- JSON parsing -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
+        </dependency>
+
+        <!-- JTS for geometric calculations -->
+        <dependency>
+            <groupId>org.locationtech.jts</groupId>
+            <artifactId>jts-core</artifactId>
+            <version>1.19.0</version>
+        </dependency>
     </dependencies>
 
 </project>
