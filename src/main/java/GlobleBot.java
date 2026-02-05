@@ -100,7 +100,7 @@ public class GlobleBot {
 
     public GuessResult getLastGuessResult() {
         try {
-            Thread.sleep(2000);
+            Thread.sleep(1000);
 
             // Find the most recent guess element (adjust selectors based on inspection)
             WebElement countriesList = driver.findElement(
