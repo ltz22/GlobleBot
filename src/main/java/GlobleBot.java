@@ -7,7 +7,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.util.List;
-import java.util.Scanner;
 
 public class GlobleBot {
     private WebDriver driver;
@@ -93,36 +92,6 @@ public class GlobleBot {
         } catch (Exception e) {
             System.out.println("Error extracting result: " + e.getMessage());
             return null;
-        }
-    }
-
-    public List<GuessResult> getAllGuesses(){
-        try {
-            WebElement countriesList = driver.findElement(
-                    By.cssSelector("ul.grid.grid-cols-3")
-            );
-
-            List<WebElement> guesses = countriesList.findElements(By.tagName("li"));
-
-            return guesses.stream().map(guess -> {
-                try {
-                    String countryName = guess.findElement(
-                            By.cssSelector("span.text-md")
-                    ).getText();
-
-                    String distance = guess.findElement(
-                            By.cssSelector("span[data-testid='closest-border']")
-                    ).getText();
-
-                    return new GuessResult(countryName, distance);
-                } catch (Exception e) {
-                    return null;
-                }
-            }).filter(r -> r != null).toList();
-
-        } catch (Exception e) {
-            System.out.println("Error getting all guesses: " + e.getMessage());
-            return List.of();
         }
     }
 

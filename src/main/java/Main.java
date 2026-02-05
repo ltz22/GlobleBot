@@ -14,7 +14,7 @@ public class Main {
             String geoJsonPath = "C:\\Users\\zhang\\GlobleBot\\src\\main\\resources\\countries.geojson";
 
             // Load GeoJSON data
-            // LiveDistanceCalculator distanceCalc = new LiveDistanceCalculator(geoJsonPath);
+            LiveDistanceCalculator distanceCalc = new LiveDistanceCalculator(geoJsonPath);
 
             System.out.print("\nEnter your initial guess country: ");
             String initialGuess = scanner.nextLine().trim();
@@ -33,8 +33,8 @@ public class Main {
             Thread.sleep(5000);
 
             // Run the algorithm
-            // GeoJSONGlobleAlgorithm algorithm = new GeoJSONGlobleAlgorithm(bot, distanceCalc);
-            // algorithm.solve(initialGuess);
+            BotAlgorithm algorithm = new BotAlgorithm(bot, distanceCalc);
+            algorithm.solve(initialGuess);
 
             System.out.println("\n=== Finished ===");
             System.out.println("Press Enter to close browser...");
