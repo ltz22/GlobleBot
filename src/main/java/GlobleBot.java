@@ -21,52 +21,6 @@ public class GlobleBot {
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    public static void main(String[] args) {
-        GlobleBot bot = new GlobleBot();
-        Scanner scanner = new Scanner(System.in);
-
-        try {
-            bot.start();
-            System.out.print("\nEnter your initial guess country: ");
-            String initialGuess = scanner.nextLine().trim();
-
-            System.out.println("\nYou have 5 seconds to switch to the browser window...");
-            Thread.sleep(5000); // Give user time to switch windows
-
-            bot.makeGuess(initialGuess);
-
-            GuessResult result = bot.getLastGuessResult();
-            if (result != null) {
-                System.out.println("\n=== Initial Guess Result ===");
-                System.out.println(result);
-                System.out.println("Distance: " + result.getDistanceAsInt() + " km");
-            }
-
-            // TODO: Algorithm goes here
-            // Example structure:
-            // while (!solved) {
-            //     String nextGuess = yourAlgorithm.getNextGuess(result);
-            //     bot.makeGuess(nextGuess);
-            //     result = bot.getLastGuessResult();
-            //     if (result.getDistanceAsInt() == 0) {
-            //         System.out.println("Found it! The answer is: " + result.country);
-            //         break;
-            //     }
-            // }
-
-            //System.out.println("\n=== Ready for algorithm implementation ===");
-            System.out.println("Press Enter to close...");
-            scanner.nextLine();
-
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-            e.printStackTrace();
-        } finally {
-            bot.close();
-            scanner.close();
-        }
-    }
-
     public void start() {
         driver.get("https://globle-game.com/game");
         // Wait for page to load
